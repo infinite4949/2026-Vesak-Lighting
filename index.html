@@ -53,23 +53,29 @@
         }
 
        /* 蓮花燈 Marker 樣式 */
+/* 蓮花燈 Marker 樣式 */
 .lotus-marker {
-    width: 40px;
-    height: 40px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999 !important; /* 確保移到地圖最上層 */
-    animation: breathe 2.5s infinite ease-in-out;
-    filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));
+    width: 45px;
+    height: 45px;
+    z-index: 9999 !important; /* 強制置頂 */
+    filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.9)); /* 金光特效 */
+    animation: lotusBreathe 3s infinite ease-in-out;
 }
 
-@keyframes breathe {
-    0%, 100% { transform: scale(0.8); opacity: 0.7; }
-    50% { transform: scale(1.1); opacity: 1; filter: drop-shadow(0 0 18px #ffd700); }
+@keyframes lotusBreathe {
+    0%, 100% { 
+        transform: scale(0.9) translateY(0); 
+        opacity: 0.8; 
+        filter: drop-shadow(0 0 8px #ffd700);
+    }
+    50% { 
+        transform: scale(1.1) translateY(-5px); /* 呼吸時稍微向上飄浮 */
+        opacity: 1; 
+        filter: drop-shadow(0 0 20px #ffd700);
+    }
 }
 
-/* 確保彈窗也在地圖最上層 */
+/* 確保彈窗也在最前面 */
 .leaflet-popup {
     z-index: 10000 !important;
 }
@@ -136,18 +142,22 @@
         L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
 
         // 使用 SVG 確保在所有裝置都能顯示，並解決方框問題
+// 精緻多層蓮花 SVG
 const lotusSVG = `
 <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-    <path d="M50 10 C60 40 90 50 50 90 C10 50 40 40 50 10" fill="#ffd700" opacity="0.8"/>
-    <path d="M50 30 C75 50 85 80 50 95 C15 80 25 50 50 30" fill="#ffec8b" opacity="0.9"/>
-    <circle cx="50" cy="70" r="8" fill="#fff"/>
+    <path d="M50 90 Q70 90 85 70 Q70 50 50 60 Q30 50 15 70 Q30 90 50 90" fill="#ff9900" opacity="0.6"/>
+    <path d="M50 90 Q85 85 95 60 Q75 40 50 55 Q25 40 5 60 Q15 85 50 90" fill="#ffcc00" opacity="0.8"/>
+    <path d="M50 90 Q70 80 75 45 Q50 30 50 10 Q50 30 25 45 Q30 80 50 90" fill="#ffd700"/>
+    <circle cx="50" cy="55" r="5" fill="#fff">
+        <animate attributeName="r" values="4;6;4" dur="2s" repeatCount="indefinite" />
+    </circle>
 </svg>`;
 
 const createLotusIcon = () => L.divIcon({
     html: `<div class="lotus-marker">${lotusSVG}</div>`,
     className: 'custom-div-icon', 
-    iconSize: [40, 40],
-    iconAnchor: [20, 20]
+    iconSize: [45, 45], // 稍微放大一點更莊嚴
+    iconAnchor: [22, 40] // 調整錨點讓蓮花底部對準座標
 });
 
         // 點擊地圖：移除確認視窗，直接點燈
@@ -194,4 +204,5 @@ const createLotusIcon = () => L.divIcon({
     </script>
 </body>
 </html>
+
 
