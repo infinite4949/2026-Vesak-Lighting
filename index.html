@@ -52,7 +52,8 @@
             box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
 
-       /* 蓮花燈 Marker 樣式 */
+        /* 蓮花呼吸燈 CSS Marker */
+        /* 蓮花燈 Marker 樣式 */
 /* 蓮花燈 Marker 樣式 */
 .lotus-marker {
     width: 45px;
@@ -75,7 +76,8 @@
     }
 }
 
-/* 確保彈窗也在最前面 */
+
+/* 確保彈窗也在地圖最上層 */
 .leaflet-popup {
     z-index: 10000 !important;
 }
@@ -117,7 +119,7 @@
     <script>
         // --- 請在此填入 Firebase Key ---
         const firebaseConfig = {
-           apiKey: "AIzaSyC4xsAWSYAmNls4IUUTtUmtQNN4-zcUX50",
+            apiKey: "AIzaSyC4xsAWSYAmNls4IUUTtUmtQNN4-zcUX50",
   authDomain: "vesak-lighting.firebaseapp.com",
   databaseURL: "https://vesak-lighting-default-rtdb.firebaseio.com",
   projectId: "vesak-lighting",
@@ -134,8 +136,8 @@
             { zh: "提得起是聰明，放得下是智慧。", en: "To lift is clever; to let go is wisdom." },
             { zh: "做好事、說好話、存好心。", en: "Do good deeds, speak good words, and think good thoughts." },
             { zh: "給人希望，給人信心。", en: "Give others hope; give others confidence." },
-            { zh: "有佛法就有辦法。", en: "With the Dharma, there is a way." }{ zh: "慈悲心是一切功德的母體，有了慈悲，就有了佛法。", en: "Compassion is the source of all merits; with it comes the Dharma." },
-];
+            { zh: "有佛法就有辦法。", en: "With the Dharma, there is a way." }
+        ];
 
         // 初始化地圖
         const map = L.map('map', { attributionControl: false }).setView([20, 15], 2);
@@ -204,8 +206,3 @@ const createLotusIcon = () => L.divIcon({
     </script>
 </body>
 </html>
-
-
-
-
-
