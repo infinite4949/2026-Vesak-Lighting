@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vesak Day Scout Good Turns Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body { margin: 0; padding: 0; background: #000; font-family: "Microsoft JhengHei", sans-serif; }
+        #map { height: 100vh; width: 100%; }
+        
+        /* 頂部介面 */
+        .ui-panel {
+            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+            z-index: 1000; background: rgba(0, 0, 0, 0.7); color: gold;
+            padding: 10px 30px; border-radius: 30px; border: 1px solid gold;
+            text-align: center; backdrop-filter: blur(5px); min-width: 250px;
+        }
+        .lang-switch { position: absolute; top: 20px; right: 20px; z-index: 1000; }
+        .lang-switch button { 
+            background: gold; border: none; padding: 5px 12px; 
+            border-radius: 5px; cursor: pointer; font-weight: bold;
+        }
+        
+        /* 蓮花燈效果 */
+        .lotus-icon {
+            font-size: 24px; text-align: center;
+            filter: drop-shadow(0 0 10px gold);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { opacity: 0.6; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1.1); }
+        }
+
+        /* 彈窗樣式 */
+        .modal {
+            display: none; position: fixed; z-index: 2000;
+            left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.8);
+        }
+        .modal-content {
+            background: #fff; margin: 15% auto; padding: 30px;
+            border-radius: 15px; width: 80%; max-width: 500px; text-align: center;
+        }
+        .quote-zh { font-size: 1.5em; color: #b71c1c; margin-bottom: 10px; font-weight: bold; }
+        .quote-en { font-size: 1.1em; color: #555; font-style: italic; }
+        .btn-close { margin-top: 20px; padding: 10px 20px; background: #b71c1c; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div class="lang-switch">
+        <button onclick="switchLang('zh')">中</button>
+        <button onclick="switchLang('en')">EN</button>
+    </div>
+
+    <div class="ui-panel">
+        <h2 id="title" style="margin: 0; font-size: 1.2em;">衛塞節童軍善行點燈</h2>
+        <div><span id="count-label">全球已點亮：</span> <strong id="counter" style="font-size: 1.5em;">0</strong></div>
+    </div>
+
+    <div id="quote-modal" class="modal">
+        <div class="modal-content">
+            <div class="quote-zh" id="q-zh"></div>
+            <div class="quote-en" id="q-en"></div>
+            <button class="btn-close" onclick="closeModal()">Close / 關閉</button>
+        </div>
+    </div>
+
+    <div id="map"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        // --- 1. Firebase 設定 ---
+        // 請將此處替換成你在 Firebase Console 獲得的設定
+        const firebaseConfig = {
+            apiKey: "你的API_KEY",
+            authDomain: "你的專案ID.firebaseapp.com",
+            databaseURL: "https://你的專案ID-default-rtdb.firebaseio.com",
+            projectId: "你的專案ID",
+            storageBucket: "你的專案ID.appspot.com",
+            messagingSenderId: "你的ID",
+            appId: "你的APP_ID"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // --- 2. 佛光菜根譚清單 ---
+        const quotes = [
+            { zh: "做好事，說好話，存好心。", en: "Do good deeds, speak good words, and think good thoughts." },
+            { zh: "慈悲廣大，利益眾生。", en: "May compassion be vast and benefit all sentient beings." },
+            { zh: "給人信心，給人歡喜，給人希望，給人方便。", en: "Give others confidence, joy, hope, and convenience." },
+            { zh: "心懷感恩，廣結善緣。", en: "Be grateful and create many good affinities." },
+            { zh: "有佛法就有辦法。", en: "With the Dharma, there is a way." },
+            { zh: "忍一時風平浪靜，退一步海闊天空。", en: "Tolerance brings peace; taking a step back opens up a wider world." },
+            { zh: "只要自覺，即是佛性。", en: "Awakening is the essence of Buddhahood." }
+        ];
+
+        // --- 3. 地圖初始化 ---
+        let currentLang = 'zh';
+        const map = L.map('map').setView([20, 0], 2);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '© OpenStreetMap | 佛光山星雲大師菜根譚'
+        }).addTo(map);
+
+        const lotusIcon = L.divIcon({
+            html: '<div class="lotus-icon">🪷</div>',
+            className: 'custom-div-icon',
+            iconSize: [30, 30],
+            iconAnchor: [15, 15]
+        });
+
+        // --- 4. 資料庫互動 ---
+        // 監聽新點燈
+        db.ref('lamps').on('child_added', (snapshot) => {
+            const data = snapshot.val();
+            L.marker([data.lat, data.lng], {icon: lotusIcon}).addTo(map);
+        });
+
+        // 監聽總數
+        db.ref('lamps').on('value', (snapshot) => {
+            const count = snapshot.numChildren();
+            document.getElementById('counter').innerText = count;
+        });
+
+        // 點擊地圖點燈
+        map.on('click', function(e) {
+            const msg = currentLang === 'zh' ? "要在這裡點亮一盞善行燈嗎？" : "Light a lamp for your good turn here?";
+            if (confirm(msg)) {
+                // 儲存到 Firebase
+                db.ref('lamps').push({
+                    lat: e.latlng.lat,
+                    lng: e.latlng.lng,
+                    time: Date.now()
+                });
+                showQuote();
+            }
+        });
+
+        function showQuote() {
+            const q = quotes[Math.floor(Math.random() * quotes.length)];
+            document.getElementById('q-zh').innerText = q.zh;
+            document.getElementById('q-en').innerText = q.en;
+            document.getElementById('quote-modal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('quote-modal').style.display = 'none';
+        }
+
+        function switchLang(lang) {
+            currentLang = lang;
+            document.getElementById('title').innerText = lang === 'zh' ? "衛塞節童軍善行點燈" : "Vesak Day Scout Good Turns Map";
+            document.getElementById('count-label').innerText = lang === 'zh' ? "全球已點亮：" : "Global Lights:";
+        }
+    </script>
+</body>
+</html>
