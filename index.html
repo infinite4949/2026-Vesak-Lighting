@@ -3,110 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VESAK GLOBAL LIGHTING | 衛塞全球點燈</title>
+    <title>2026 Vesak Global Lighting</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
     <style>
+        :root {
+            --gold: #ffd700;
+            --deep-blue: #0a192f;
+            --accent-blue: #112240;
+        }
+
         body { 
             margin: 0; padding: 0; 
-            background-color: #001529; /* 深藍色背景 */
+            background: radial-gradient(circle at top, var(--accent-blue) 0%, var(--deep-blue) 100%);
             color: white; 
-            font-family: "Microsoft JhengHei", "PingFang TC", sans-serif;
+            font-family: "Microsoft JhengHei", sans-serif;
             display: flex; flex-direction: column; align-items: center;
-            overflow-x: hidden;
+            min-height: 100vh;
         }
 
-        /* 頂部導覽列 */
-        .nav-bar {
-            width: 100%; padding: 15px 30px;
-            display: flex; justify-content: space-between; align-items: center;
-            box-sizing: border-box; font-size: 14px; letter-spacing: 1px;
+        /* 左上角標題 */
+        .brand-header {
+            position: absolute; top: 20px; left: 20px;
+            font-size: 16px; color: var(--gold);
+            letter-spacing: 1px; font-weight: bold;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
         }
-        .lang-btn {
-            border: 1px solid #ffd700; color: #ffd700; background: transparent;
-            padding: 6px 16px; border-radius: 20px; cursor: pointer;
-            transition: 0.3s; font-weight: bold;
-        }
-        .lang-btn:hover { background: rgba(255, 215, 0, 0.2); }
 
-        /* 佛像與標題區塊 */
-        .header-section { text-align: center; margin-top: 10px; padding: 0 20px; }
+        .lang-switch {
+            position: absolute; top: 20px; right: 20px;
+        }
+        .lang-switch button {
+            background: transparent; border: 1px solid var(--gold);
+            color: var(--gold); padding: 5px 15px; border-radius: 20px;
+            cursor: pointer; transition: 0.3s;
+        }
+        .lang-switch button:hover { background: rgba(255, 215, 0, 0.1); }
+
+        /* 佛像區塊 */
+        .buddha-container {
+            margin-top: 40px; text-align: center;
+        }
         .buddha-img {
-            width: 250px; 
-            filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.6));
+            width: 180px; 
+            filter: drop-shadow(0 0 25px rgba(255, 215, 0, 0.5));
             margin-bottom: 20px;
-            border-radius: 50%; /* 如果圖片是圓形的 */
         }
-        .slogan { font-size: 28px; font-weight: bold; color: white; margin: 10px 0; letter-spacing: 2px; }
-        .sub-text { color: #ccc; font-size: 16px; margin-bottom: 30px; line-height: 1.6; }
+        .slogan-main { font-size: 26px; font-weight: bold; margin-bottom: 10px; letter-spacing: 2px; }
+        .slogan-sub { color: #aaa; font-size: 14px; margin-bottom: 25px; }
 
-        /* 全球計數器按鈕 */
-        .counter-badge {
-            border: 2px solid #ffd700; color: #ffd700;
-            padding: 12px 45px; border-radius: 35px;
-            font-size: 20px; background: rgba(0,0,0,0.4);
-            display: inline-block; margin-bottom: 40px;
-            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+        /* 全球計數 */
+        .global-counter {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--gold);
+            padding: 8px 30px; border-radius: 50px;
+            font-size: 18px; color: var(--gold);
+            margin-bottom: 20px;
         }
-        #counter { font-weight: bold; font-size: 1.3em; margin: 0 5px; }
 
-        /* 地圖區域樣式 */
+        /* 縮小版地圖 */
         #map { 
-            width: 90%; max-width: 1100px; height: 550px; 
-            border: 2px solid #333; border-radius: 20px;
-            margin-bottom: 60px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            background: #111;
+            width: 85%; max-width: 800px; height: 380px; 
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 15px; box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+            background: #000;
         }
 
-        /* 蓮花燈 Marker 特效 */
-        .lotus-icon { 
-            font-size: 28px; 
-            line-height: 1;
-            filter: drop-shadow(0 0 12px #ffd700); 
-            animation: pulse 2.5s infinite ease-in-out; 
-            text-align: center;
+        /* 蓮花呼吸燈動畫 */
+        .lotus-glow {
+            font-size: 24px; text-align: center;
+            filter: drop-shadow(0 0 10px var(--gold));
+            animation: breathe 2.5s infinite ease-in-out;
         }
-        @keyframes pulse { 
-            0% { transform: scale(1); opacity: 0.8; } 
-            50% { transform: scale(1.25); opacity: 1; } 
-            100% { transform: scale(1); opacity: 0.8; } 
+        @keyframes breathe {
+            0% { transform: scale(0.9); opacity: 0.7; }
+            50% { transform: scale(1.2); opacity: 1; filter: drop-shadow(0 0 20px var(--gold)); }
+            100% { transform: scale(0.9); opacity: 0.7; }
         }
 
-        /* Leaflet 彈窗美化 (菜根譚) */
-        .leaflet-popup-content-wrapper { 
-            background: #1a2a3a; color: white; border: 1px solid #ffd700; 
-            border-radius: 12px; padding: 5px;
+        /* 彈窗樣式 */
+        .leaflet-popup-content-wrapper {
+            background: #0d1b2a; color: white; border: 1px solid var(--gold);
+            border-radius: 10px; text-align: center;
         }
-        .leaflet-popup-tip { background: #ffd700; }
-        .quote-zh { color: #ffd700; font-size: 1.2em; font-weight: bold; margin-bottom: 8px; line-height: 1.4; }
-        .quote-en { color: #e0e0e0; font-style: italic; font-size: 0.95em; line-height: 1.3; }
-
-        /* 手機版適應 */
-        @media (max-width: 600px) {
-            .slogan { font-size: 20px; }
-            .buddha-img { width: 180px; }
-            #map { height: 400px; width: 95%; }
-            .counter-badge { font-size: 16px; padding: 10px 25px; }
-        }
+        .quote-zh { color: var(--gold); font-size: 1.1em; font-weight: bold; margin-bottom: 5px; }
+        .quote-en { color: #ddd; font-style: italic; font-size: 0.85em; }
     </style>
 </head>
 <body>
 
-    <div class="nav-bar">
-        <div id="nav-title">VESAK GLOBAL LIGHTING | 衛塞全球點燈</div>
-        <button class="lang-btn" onclick="toggleLang()">EN / 中文</button>
+    <div class="brand-header">2026 Vesak Global Lighting<br>衛塞節全球點燈</div>
+
+    <div class="lang-switch">
+        <button onclick="toggleLang()">EN / 中文</button>
     </div>
 
-    <div class="header-section">
+    <div class="buddha-container">
         <img src="buddha_vesak.png" alt="Buddha" class="buddha-img">
-        <div class="slogan" id="main-slogan">「 願慈悲之光，照破世間黑暗。」</div>
-        <div class="sub-text" id="sub-instructions">點擊地圖點亮蓮花，您的善念將與全球同步顯示。</div>
-        
-        <div class="counter-badge">
-            <span id="label-total">全球已匯聚：</span>
-            <span id="counter">0</span>
+        <div class="slogan-main" id="text-main">「願慈悲之光，照破世間黑暗。」</div>
+        <div class="slogan-sub" id="text-sub">點擊地圖點亮蓮花，您的善念將與全球同步顯示。</div>
+        <div class="global-counter">
+            <span id="label-count">全球已匯聚：</span>
+            <strong id="counter">0</strong>
             <span id="label-unit"> 盞心燈</span>
         </div>
     </div>
@@ -115,11 +114,10 @@
 
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
-        // --- 1. Firebase 配置 (請在此替換您的金鑰) ---
+        // --- 務必填入您的 Firebase Key ---
         const firebaseConfig = {
             apiKey: "AIzaSyC4xsAWSYAmNls4IUUTtUmtQNN4-zcUX50",
   authDomain: "vesak-lighting.firebaseapp.com",
@@ -130,116 +128,64 @@
   appId: "1:411320593950:web:6ae15723a4f7fdf6afc80f",
   measurementId: "G-N618EW3EF2"
         };
-        
-        // 初始化 Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // --- 2. 語系與資料設定 ---
         let currentLang = 'zh';
         const quotes = [
-            { zh: "提得起是聰明，放得下是智慧。", en: "To lift is clever; to let go is wisdom." },
             { zh: "做好事、說好話、存好心。", en: "Do good deeds, speak good words, and think good thoughts." },
+            { zh: "提得起是聰明，放得下是智慧。", en: "To lift is clever; to let go is wisdom." },
             { zh: "給人希望，給人信心。", en: "Give others hope; give others confidence." },
-            { zh: "有佛法就有辦法。", en: "With the Dharma, there is a way." },
-            { zh: "心懷感恩，廣結善緣。", en: "Be grateful and create many good affinities." },
-            { zh: "給人歡喜，給人方便。", en: "Give others joy; give others convenience." }
+            { zh: "心懷感恩，廣結善緣。", en: "Be grateful and create many good affinities." }
         ];
 
-        // --- 3. 初始化地圖 ---
-        // 使用深色地圖樣式更符合點燈氛圍
-        const map = L.map('map', { 
-            zoomControl: true,
-            minZoom: 2
-        }).setView([20, 10], 2);
+        // 地圖設定
+        const map = L.map('map').setView([20, 10], 2);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
 
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            attribution: '© OpenStreetMap | 佛光山星雲大師菜根譚'
-        }).addTo(map);
-
-        // 定義蓮花燈圖示
         const lotusIcon = L.divIcon({
-            html: '<div class="lotus-icon">🪷</div>',
-            className: 'custom-div-icon', 
-            iconSize: [30, 30],
-            iconAnchor: [15, 15]
+            html: '<div class="lotus-glow">🪷</div>',
+            className: 'custom-icon', iconSize: [30, 30]
         });
 
-        // --- 4. 核心邏輯與資料庫互動 ---
-
-        // A. 點擊地圖點燈
+        // 點擊地圖點燈
         map.on('click', function(e) {
-            const confirmMsg = currentLang === 'zh' ? "要在這裡點亮一盞善行燈嗎？" : "Would you like to light a lamp here?";
-            if (confirm(confirmMsg)) {
-                const q = quotes[Math.floor(Math.random() * quotes.length)];
-                
-                // 儲存到 Firebase
-                db.ref('lamps').push({
-                    lat: e.latlng.lat,
-                    lng: e.latlng.lng,
-                    quoteZh: q.zh,
-                    quoteEn: q.en,
-                    timestamp: Date.now()
-                });
+            const q = quotes[Math.floor(Math.random() * quotes.length)];
+            
+            // 存入 Firebase
+            db.ref('lamps').push({
+                lat: e.latlng.lat,
+                lng: e.latlng.lng,
+                quoteZh: q.zh,
+                quoteEn: q.en
+            });
 
-                // 立即在本地顯示一個 Popup (菜根譚)
-                const content = `
-                    <div style="text-align:center; min-width:150px;">
-                        <div class="quote-zh">${q.zh}</div>
-                        <div class="quote-en">${q.en}</div>
-                    </div>
-                `;
-                L.popup().setLatLng(e.latlng).setContent(content).openOn(map);
-            }
+            // 彈出菜根譚
+            L.popup().setLatLng(e.latlng).setContent(`
+                <div class="quote-zh">${q.zh}</div>
+                <div class="quote-en">${q.en}</div>
+            `).openOn(map);
         });
 
-        // B. 監聽資料庫：有人點燈就同步顯示
+        // 同步所有點燈
         db.ref('lamps').on('child_added', (snapshot) => {
             const data = snapshot.val();
             const marker = L.marker([data.lat, data.lng], {icon: lotusIcon}).addTo(map);
-            
-            // 點擊已經存在的燈也會顯示當時的菜根譚
-            const content = `
-                <div style="text-align:center;">
-                    <div class="quote-zh">${data.quoteZh}</div>
-                    <div class="quote-en">${data.quoteEn}</div>
-                </div>
-            `;
-            marker.bindPopup(content);
+            marker.bindPopup(`<div class="quote-zh">${data.quoteZh}</div><div class="quote-en">${data.quoteEn}</div>`);
         });
 
-        // C. 監聽總數更新計數器
+        // 更新計數
         db.ref('lamps').on('value', (snapshot) => {
-            const count = snapshot.numChildren() || 0;
-            document.getElementById('counter').innerText = count;
+            document.getElementById('counter').innerText = snapshot.numChildren() || 0;
         });
 
-        // --- 5. 語系切換功能 ---
+        // 語系切換
         function toggleLang() {
-            currentLang = (currentLang === 'zh') ? 'en' : 'zh';
-            
-            const content = {
-                zh: {
-                    nav: "VESAK GLOBAL LIGHTING | 衛塞全球點燈",
-                    slogan: "「 願慈悲之光，照破世間黑暗。」",
-                    sub: "點擊地圖點亮蓮花，您的善念將與全球同步顯示。",
-                    total: "全球已匯聚：",
-                    unit: " 盞心燈"
-                },
-                en: {
-                    nav: "VESAK GLOBAL LIGHTING",
-                    slogan: "“May the light of compassion dispel the darkness of the world.”",
-                    sub: "Click on the map to light a lotus; your good deeds will be shown globally.",
-                    total: "Global Gathering: ",
-                    unit: " Lamps"
-                }
-            };
-
-            document.getElementById('nav-title').innerText = content[currentLang].nav;
-            document.getElementById('main-slogan').innerText = content[currentLang].slogan;
-            document.getElementById('sub-instructions').innerText = content[currentLang].sub;
-            document.getElementById('label-total').innerText = content[currentLang].total;
-            document.getElementById('label-unit').innerText = content[currentLang].unit;
+            currentLang = currentLang === 'zh' ? 'en' : 'zh';
+            document.getElementById('text-main').innerText = currentLang === 'zh' ? "「願慈悲之光，照破世間黑暗。」" : "“May the light of compassion dispel the darkness.”";
+            document.getElementById('text-sub').innerText = currentLang === 'zh' ? "點擊地圖點亮蓮花，您的善念將與全球同步顯示。" : "Click to light a lotus; your goodness will be shown globally.";
+            document.getElementById('label-count').innerText = currentLang === 'zh' ? "全球已匯聚：" : "Global Gathering: ";
+            document.getElementById('label-unit').innerText = currentLang === 'zh' ? " 盞心燈" : " Lamps";
         }
     </script>
 </body>
