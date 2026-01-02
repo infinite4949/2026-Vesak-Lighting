@@ -3,101 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2026 Vesak Global Lighting</title>
+    <title>2026 Vesak Global Lighting | 衛塞節全球點燈</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        :root {
-            --gold: #ffd700;
-            --deep-blue: #05162a;
-        }
-
-        body { 
-            margin: 0; padding: 0; background: var(--deep-blue);
-            color: white; font-family: "Microsoft JhengHei", sans-serif;
-            display: flex; flex-direction: column; align-items: center;
-        }
-
-        /* 左上角標題 */
-        .brand-header {
-            position: absolute; top: 20px; left: 20px; font-size: 14px;
-            color: var(--gold); letter-spacing: 1px; font-weight: bold; line-height: 1.5;
-        }
-
-        .lang-switch { position: absolute; top: 20px; right: 20px; z-index: 1001; }
-        .lang-switch button {
-            background: transparent; border: 1px solid var(--gold);
-            color: var(--gold); padding: 5px 12px; border-radius: 20px; cursor: pointer;
-        }
-
-        /* 佛像與標語區 */
+        :root { --gold: #ffd700; --deep-blue: #05162a; }
+        body { margin: 0; background: var(--deep-blue); color: white; font-family: "Microsoft JhengHei", sans-serif; display: flex; flex-direction: column; align-items: center; }
+        .brand-header { position: absolute; top: 20px; left: 20px; font-size: 14px; color: var(--gold); font-weight: bold; z-index: 1000; text-align: left; }
+        .lang-switch { position: absolute; top: 20px; right: 20px; z-index: 1000; }
+        .lang-switch button { background: transparent; border: 1px solid var(--gold); color: var(--gold); padding: 5px 12px; border-radius: 20px; cursor: pointer; }
         .header-section { text-align: center; margin-top: 30px; }
-        .buddha-img {
-            width: 220px; filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.4));
-            margin-bottom: 15px;
-        }
+        .buddha-img { width: 220px; filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.4)); margin-bottom: 15px; }
         .slogan-main { font-size: 24px; font-weight: bold; margin-bottom: 8px; }
         .slogan-sub { color: #8892b0; font-size: 14px; margin-bottom: 25px; }
-
-        /* 計數器 */
-        .counter-box {
-            border: 1px solid var(--gold); padding: 10px 35px; border-radius: 50px;
-            font-size: 18px; color: var(--gold); background: rgba(0,0,0,0.3);
-            margin-bottom: 25px; display: inline-block;
+        .counter-box { border: 1px solid var(--gold); padding: 10px 35px; border-radius: 50px; font-size: 18px; color: var(--gold); background: rgba(0,0,0,0.3); margin-bottom: 25px; }
+        #map { width: 85%; max-width: 900px; height: 420px; border-radius: 15px; border: 1px solid #1e2d3d; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        
+        /* 蓮花燈 SVG 呼吸效果 */
+        .lotus-marker { width: 45px; height: 45px; z-index: 9999 !important; animation: lotusBreathe 3s infinite ease-in-out; }
+        @keyframes lotusBreathe {
+            0%, 100% { transform: scale(0.9); opacity: 0.8; filter: drop-shadow(0 0 8px var(--gold)); }
+            50% { transform: scale(1.1) translateY(-5px); opacity: 1; filter: drop-shadow(0 0 20px var(--gold)); }
         }
-
-        /* 地圖區域 */
-        #map { 
-            width: 85%; max-width: 900px; height: 420px; 
-            border-radius: 15px; border: 1px solid #1e2d3d;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-        }
-
-        /* 蓮花呼吸燈 CSS Marker */
-        /* 蓮花燈 Marker 樣式 */
-/* 蓮花燈 Marker 樣式 */
-.lotus-marker {
-    width: 45px;
-    height: 45px;
-    z-index: 9999 !important; /* 強制置頂 */
-    filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.9)); /* 金光特效 */
-    animation: lotusBreathe 3s infinite ease-in-out;
-}
-
-@keyframes lotusBreathe {
-    0%, 100% { 
-        transform: scale(0.9) translateY(0); 
-        opacity: 0.8; 
-        filter: drop-shadow(0 0 8px #ffd700);
-    }
-    50% { 
-        transform: scale(1.1) translateY(-5px); /* 呼吸時稍微向上飄浮 */
-        opacity: 1; 
-        filter: drop-shadow(0 0 20px #ffd700);
-    }
-}
-
-
-/* 確保彈窗也在地圖最上層 */
-.leaflet-popup {
-    z-index: 10000 !important;
-}
-
-        /* 彈窗樣式 */
-        .leaflet-popup-content-wrapper {
-            background: rgba(10, 25, 47, 0.95); color: white; border: 1px solid var(--gold);
-            border-radius: 8px; text-align: center;
-        }
-        .quote-zh { color: var(--gold); font-size: 1.1em; font-weight: bold; margin-bottom: 4px; }
+        .leaflet-popup-content-wrapper { background: rgba(10, 25, 47, 0.95); color: white; border: 1px solid var(--gold); text-align: center; }
+        .quote-zh { color: var(--gold); font-size: 1.1em; font-weight: bold; margin-bottom: 5px; }
         .quote-en { color: #ccd6f6; font-style: italic; font-size: 0.85em; }
     </style>
 </head>
 <body>
 
     <div class="brand-header">2026 Vesak Global Lighting<br>衛塞節全球點燈</div>
-
-    <div class="lang-switch">
-        <button onclick="toggleLang()">EN / 中文</button>
-    </div>
+    <div class="lang-switch"><button onclick="toggleLang()">EN / 中文</button></div>
 
     <div class="header-section">
         <img src="buddha_vesak.png" alt="Buddha" class="buddha-img">
@@ -117,7 +52,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
-        // --- 請在此填入 Firebase Key ---
+        // --- 1. Firebase 設定 (請確保填入正確的金鑰) ---
         const firebaseConfig = {
             apiKey: "AIzaSyC4xsAWSYAmNls4IUUTtUmtQNN4-zcUX50",
   authDomain: "vesak-lighting.firebaseapp.com",
@@ -131,14 +66,10 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let currentLang = 'zh';
+        // --- 2. 佛光菜根譚資料庫 (100句) ---
         const quotes = [
-            { zh: "提得起是聰明，放得下是智慧。", en: "To lift is clever; to let go is wisdom." },
-            { zh: "做好事、說好話、存好心。", en: "Do good deeds, speak good words, and think good thoughts." },
-            { zh: "給人希望，給人信心。", en: "Give others hope; give others confidence." },
-            { zh: "有佛法就有辦法。", en: "With the Dharma, there is a way." }，
             { zh: "慈悲心是一切功德的母體，有了慈悲，就有了佛法。", en: "Compassion is the source of all merits; with it comes the Dharma." },
-　　　　　　 { zh: "提得起是聰明，放得下是智慧，提起放下才是自在。", en: "To lift is clever; to let go is wisdom. Mastering both is freedom." },
+            { zh: "提得起是聰明，放得下是智慧，提起放下才是自在。", en: "To lift is clever; to let go is wisdom. Mastering both is freedom." },
             { zh: "心好命就好，慈悲聖潔好，內在祥和能轉化外在荒涼。", en: "A good heart brings a good life; inner peace transforms desolation." },
             { zh: "給人信心，給人希望，給人方便，是人與人最美的連結。", en: "Give confidence, hope, and convenience; these are the best links." },
             { zh: "願慈悲之光，照破世間黑暗，讓受苦靈魂得到慰藉。", en: "May the light of compassion break the darkness and comfort souls." },
@@ -173,73 +104,116 @@
             { zh: "放下執著，並非放棄一切，而是不再被外境所轉，找回主動。", en: "Detachment is not giving up, but not being swayed by the world." },
             { zh: "以德報怨是最高境界，用寬恕代替報復，終結仇恨的循環。", en: "Repay resentment with virtue. Forgiveness ends the cycle of hate." },
             { zh: "尊師重道，感恩引導，在知識汪洋中，謙卑是承載智慧的容器。", en: "Respect teachers. Humility is the vessel for wisdom in knowledge." },
+            { zh: "誠實無欺是立身根本，欺騙獲得短暫利益，卻輸掉長遠人生。", en: "Honesty is the root. Deceit brings short gain but loses the race." },
+            { zh: "勤儉持家，惜物愛物，簡約的生活就是對自然最大的慈悲。", en: "Be thrifty. Simple living is the greatest mercy to nature." },
+            { zh: "世界和平始於內心和平，平息心中戰火，外在世界自然祥和。", en: "World peace starts within. End inner conflict for outer harmony." },
+            { zh: "法界圓融，萬物共生，體認眾生一體，便不會傷害他人。", en: "Harmony in the Dharma; all coexist. Being one prevents hurting others." },
+            { zh: "自覺與覺他是人生的雙翼，先點亮心燈，再去照亮迷途旅人。", en: "Self-awareness and awakening others are wings. Light the lost." },
+            { zh: "平凡見偉大，簡單見真誠，不需要追求轟烈，真心即是永恆。", en: "See greatness in ordinary. No need for fanfare; truth is eternal." },
+            { zh: "大公無私便是佛心，放下小我私慾，才能看見大我的圓滿。", en: "Selflessness is Buddha's heart. Let go of ego for fulfillment." },
+            { zh: "行善最樂，不為回報，付出的喜悅本身就是最好的報酬。", en: "Goodness is joy. The act of giving is the best reward itself." },
+            { zh: "內心平安，外境自然安寧，當我們不再對抗，世界就會溫柔。", en: "Inner peace brings outer calm. Stop fighting for a kind world." },
+            { zh: "圓滿人生不在擁有多少財富，而在於給予了多少慈悲與溫暖。", en: "Perfect life is not wealth, but the compassion you give the world." },
+            { zh: "正向思考能轉化負能量，看見黑暗中的星光是走出困境的關鍵。", en: "Positive thinking transforms energy. Starlight guides you out." },
+            { zh: "共生共榮，彼此成就，在合作中放下傲慢，體驗和諧力量。", en: "Coexist and prosper. Drop arrogance for the power of harmony." },
+            { zh: "佛光普照，法水長流，願智慧法雨滋潤心田，讓菩提開花。", en: "May wisdom's rain nourish hearts and let Bodhi bloom everywhere." },
+            { zh: "看破世事，心無罣礙，明白了因緣果報，就能泰然面對生滅。", en: "See through the world. Understanding karma lets us face life calmly." },
+            { zh: "慈悲是一束光，穿透堅硬防備，在理解中消融對立的冰牆。", en: "Compassion is light that pierces defenses and melts opposition." },
+            { zh: "真正的富有是內心知足，擁有的再多，心靈空虛也只是乞丐。", en: "True wealth is contentment. An empty soul is but a beggar." },
+            { zh: "不患人之不己知，患不知人也，多去理解他人而非渴望被理解。", en: "Worry not about being unknown. Seek to understand others first." },
+            { zh: "如人飲水冷暖自知，修行是體證，文字替代不了實踐的腳印。", en: "Like drinking water, only you know. Words cannot replace deeds." },
+            { zh: "一念天堂，一念地獄，心念決定處境，轉念就是天堂。", en: "A thought of heaven or hell. Your mindset dictates your reality." },
+            { zh: "愛心是無國界的護照，它能讓我們在任何地方找到心靈故鄉。", en: "Love is a borderless passport; find a spiritual home anywhere." },
+            { zh: "讀書不如行路，行路不如識人，識人不如佛祖點渡。", en: "Experience beats books; meeting people beats travel; Buddha guides all." },
+            { zh: "廣大心量，包容萬物，心量愈大煩惱愈小，世界愈加開闊。", en: "A vast mind embraces all. Larger minds have fewer worries." },
+            { zh: "對失意人莫談得意事，這份體貼是慈悲在細節中的最高展現。", en: "Never boast to the failed. This is the highest form of compassion." },
+            { zh: "求人不如求己，求己不如求佛，求佛是喚醒內在的佛性。", en: "Rely on self over others. Seeking Buddha is awakening the inner one." },
+            { zh: "忙人珍惜光陰，懶人虛擲生命，大忙人往往最有時間。", en: "The busy value time; the lazy waste it. The busy find the most time." },
+            { zh: "微笑是世界上最美的名片，不需成本，卻能創造無比價值。", en: "A smile is the best card. It costs nothing but creates value." },
+            { zh: "吃虧就是便宜，物質看似損失，人格與福報卻是深厚積累。", en: "Loss is gain. Material loss is an accumulation of future blessings." },
+            { zh: "只要有勇氣，世界就沒有難事，恐懼是我們自設的圍牆。", en: "With courage, nothing is impossible. Fear is a self-made wall." },
+            { zh: "有佛法就有辦法，在絕望盡頭，智慧能為我們開拓出生路。", en: "With Dharma, there's a way. Wisdom carves a path through despair." },
+            { zh: "信譽是人的第二生命，失去信用，再多財富也難以立足。", en: "Reputation is life. Without credit, wealth cannot help you stand." },
+            { zh: "做事精進，為人厚道，對工作全力以赴，對他人留有寬厚。", en: "Be diligent and kind. Give your best and show mercy to others." },
+            { zh: "布施不僅是財物給予更是心念流動，哪怕是一個關心的眼神。", en: "Giving is a flow of intent. Even a caring look is an act of charity." },
+            { zh: "學習如春起之苗，不見其增日有所長；輟學如磨刀之石，日有所虧。", en: "Learning is like spring sprouts; growth is daily. Stopping is a loss." },
+            { zh: "寬大是福，慈悲是壽，寬容的心吸引福氣，慈悲的人自然長壽。", en: "Tolerance is bliss; mercy is longevity. Compassion brings long life." },
+            { zh: "心中有法，行中有禮，將佛法內化為準則，行為自然合禮。", en: "Dharma in heart, courtesy in action. Truth makes behavior proper." },
+            { zh: "自律是最好的管理，能掌控情緒與欲望的人，才是真正強者。", en: "Self-discipline is best. One who controls desires is truly strong." },
+            { zh: "懂得排隊就是有禮，在公共秩序中展現耐心，反映修養。", en: "Waiting in line is courtesy. Patience reflects one's cultivation." },
+            { zh: "人窮志不窮，物質匱乏可以忍受，精神墮落才是真正貧窮。", en: "Poor in wealth but not in will. Spiritual decay is true poverty." },
+            { zh: "做事要如織布，一針一線精雕細琢，專注與耐心織就燦爛人生。", en: "Work like weaving. Focus and patience weave a brilliant life." },
+            { zh: "一念之差天壤之別，在關鍵時刻守住善念，避免墮入深淵。", en: "A slight error makes a huge difference. Hold goodness at key moments." },
+            { zh: "柔和忍辱能化解暴戾之氣，像水柔軟，卻能穿透堅硬障礙。", en: "Gentle patience dissolves rage. Soft water pierces hard obstacles." },
+            { zh: "珍惜生命感恩因緣，這口呼吸是宇宙無數因緣的成就。", en: "Cherish life and be grateful. This breath is a cosmic achievement." },
+            { zh: "愛護公物體貼大眾，公共場合的克制與體諒是慈悲的實踐。", en: "Care for public property. Restraint is a practice of compassion." },
+            { zh: "共創幸福同圓種智，讓小我融入大眾利他，圓滿共同人格。", en: "Create bliss together. Merge the small self into the public good." },
+            { zh: "把歡喜帶回家，讓家人感受改變，家庭是修行的第一道場。", en: "Bring joy home. Family harmony is the first place of practice." },
+            { zh: "面上無嗔，口裡無嗔，最簡單的修行就是一個溫暖微笑。", en: "No anger in face or words. The simplest practice is a warm smile." },
+            { zh: "放下執著並非放棄，而是不再被外境所轉，找回主動權。", en: "Detachment is not giving up, but regaining control of your life." },
+            { zh: "誠實無欺是立身根本，欺騙贏得暫時利益，輸掉長遠人生。", en: "Honesty is the root. Deceit brings short gain but loses the race." },
+            { zh: "以德報怨是最高境界，用寬恕代替報復，終結仇恨循環。", en: "Repay resentment with virtue. Forgiveness ends the cycle of hate." },
+            { zh: "法界圓融萬物共生，體認眾生一體，不做出傷害他人的行為。", en: "Harmony in the Dharma. Knowing we are one prevents hurting others." },
+            { zh: "內心平安外境安寧，當我們不再對抗世界，世界就會對我們溫柔。", en: "Inner peace brings outer calm. Stop fighting for a kind world." },
+            { zh: "正向思考轉化負能量，看見黑暗中的星光是走出困境的關鍵。", en: "Positive thinking transforms energy. Starlight guides you out." },
+            { zh: "平凡中見偉大，簡單中見真誠，每一刻的真心都是永恆。", en: "See greatness in ordinary. Every sincere moment is eternal." },
+            { zh: "感恩是人生最美妙音符，讓貧窮變富有，讓孤獨變溫暖。", en: "Gratitude is life's best note; it enriches and warms the soul." },
+            { zh: "有佛法就有辦法，在絕望盡頭，智慧能為我們開拓出路。", en: "With Dharma, there's a way. Wisdom carves a path through despair." },
+            { zh: "自覺與覺他是人生的雙翼，先點亮自己，再去照亮迷途旅人。", en: "Self-awareness and awakening others are wings. Light the lost." },
+            { zh: "大公無私便是佛心，放下小我私慾，看見大我的浩瀚圓滿。", en: "Selflessness is Buddha's heart. Let go of ego for the Great Self." },
+            { zh: "行善最樂不為回報，付出的喜悅本身就是最好的報酬。", en: "Goodness is joy. The act of giving is the best reward itself." },
+            { zh: "心中有佛所見皆佛，以佛眼看世界，世界就是一片清淨。", en: "With Buddha in heart, all is Buddha. His eyes see a pure world." },
+            { zh: "謙虛是智慧的表現，愈是飽滿成熟的稻穗，愈懂得低頭。", en: "Humility is wisdom. Like ripe rice, the fuller it is, the lower it bows." },
+            { zh: "愛心是無國界護照，讓我們在任何地方找到心靈故鄉。", en: "Love is a borderless passport; find a spiritual home anywhere." },
+            { zh: "心懷感恩精進不懈，順應自然老實修行，慈悲喜捨法界圓融。", en: "Be grateful and diligent. Practice with honesty for cosmic harmony." },
+            { zh: "微笑是跨越國界的語言，真誠是通往心靈的唯一道路。", en: "A smile crosses borders; sincerity is the only path to the soul." },
+            { zh: "法水長流佛光普照，同圓種智共創幸福，圓滿自在的人生。", en: "May Dharma flow and Buddha shine. Create happiness for a perfect life." }
         ];
 
-        // 初始化地圖
-        const map = L.map('map', { attributionControl: false }).setView([20, 15], 2);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+        // --- 3. 蓮花 SVG 與地圖邏輯 ---
+        const lotusSVG = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <path d="M50 90 Q70 90 85 70 Q70 50 50 60 Q30 50 15 70 Q30 90 50 90" fill="#ff9900" opacity="0.6"/>
+            <path d="M50 90 Q85 85 95 60 Q75 40 50 55 Q25 40 5 60 Q15 85 50 90" fill="#ffcc00" opacity="0.8"/>
+            <path d="M50 90 Q70 80 75 45 Q50 30 50 10 Q50 30 25 45 Q30 80 50 90" fill="#ffd700"/></svg>`;
 
-        // 使用 SVG 確保在所有裝置都能顯示，並解決方框問題
-// 精緻多層蓮花 SVG
-const lotusSVG = `
-<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-    <path d="M50 90 Q70 90 85 70 Q70 50 50 60 Q30 50 15 70 Q30 90 50 90" fill="#ff9900" opacity="0.6"/>
-    <path d="M50 90 Q85 85 95 60 Q75 40 50 55 Q25 40 5 60 Q15 85 50 90" fill="#ffcc00" opacity="0.8"/>
-    <path d="M50 90 Q70 80 75 45 Q50 30 50 10 Q50 30 25 45 Q30 80 50 90" fill="#ffd700"/>
-    <circle cx="50" cy="55" r="5" fill="#fff">
-        <animate attributeName="r" values="4;6;4" dur="2s" repeatCount="indefinite" />
-    </circle>
-</svg>`;
+        try {
+            const map = L.map('map', { attributionControl: false }).setView([20, 15], 2);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
 
-const createLotusIcon = () => L.divIcon({
-    html: `<div class="lotus-marker">${lotusSVG}</div>`,
-    className: 'custom-div-icon', 
-    iconSize: [45, 45], // 稍微放大一點更莊嚴
-    iconAnchor: [22, 40] // 調整錨點讓蓮花底部對準座標
-});
-
-        // 點擊地圖：移除確認視窗，直接點燈
-        map.on('click', function(e) {
-            const q = quotes[Math.floor(Math.random() * quotes.length)];
-            
-            // 1. 儲存數據
-            db.ref('lamps').push({
-                lat: e.latlng.lat,
-                lng: e.latlng.lng,
-                quoteZh: q.zh,
-                quoteEn: q.en
+            const createLotusIcon = () => L.divIcon({
+                html: `<div class="lotus-marker">${lotusSVG}</div>`,
+                className: 'custom-div-icon', iconSize: [45, 45], iconAnchor: [22, 40]
             });
 
-            // 2. 點擊處直接彈出菜根譚
-            L.popup({ closeButton: false, offset: [0, -10] })
-                .setLatLng(e.latlng)
-                .setContent(`<div class="quote-zh">${q.zh}</div><div class="quote-en">${q.en}</div>`)
-                .openOn(map);
-        });
+            // 點擊即點燈
+            map.on('click', function(e) {
+                const q = quotes[Math.floor(Math.random() * quotes.length)];
+                db.ref('lamps').push({ lat: e.latlng.lat, lng: e.latlng.lng, quoteZh: q.zh, quoteEn: q.en });
+                L.popup({ closeButton: false, offset: [0, -20] })
+                    .setLatLng(e.latlng)
+                    .setContent(`<div class="quote-zh">${q.zh}</div><div class="quote-en">${q.en}</div>`)
+                    .openOn(map);
+            });
 
-        // 監聽並顯示蓮花燈
-        db.ref('lamps').on('child_added', (snapshot) => {
-            const data = snapshot.val();
-            const marker = L.marker([data.lat, data.lng], { icon: createLotusIcon() }).addTo(map);
-            
-            // 點擊已有的蓮花顯示該則菜根譚
-            marker.bindPopup(`<div class="quote-zh">${data.quoteZh}</div><div class="quote-en">${data.quoteEn}</div>`, { closeButton: false });
-        });
+            db.ref('lamps').on('child_added', (snapshot) => {
+                const data = snapshot.val();
+                const marker = L.marker([data.lat, data.lng], { icon: createLotusIcon() }).addTo(map);
+                marker.bindPopup(`<div class="quote-zh">${data.quoteZh}</div><div class="quote-en">${data.quoteEn}</div>`, { closeButton: false });
+            });
 
-        // 監聽總數
-        db.ref('lamps').on('value', (snapshot) => {
-            document.getElementById('counter').innerText = snapshot.numChildren() || 0;
-        });
+            db.ref('lamps').on('value', (snapshot) => {
+                document.getElementById('counter').innerText = snapshot.numChildren() || 0;
+            });
+        } catch (e) { console.error("地圖載入錯誤:", e); }
 
-        // 語系切換
+        let currentLang = 'zh';
         function toggleLang() {
             currentLang = currentLang === 'zh' ? 'en' : 'zh';
             document.getElementById('text-main').innerText = currentLang === 'zh' ? "「願慈悲之光，照破世間黑暗。」" : "“May the light of compassion dispel the darkness.”";
-            document.getElementById('text-sub').innerText = currentLang === 'zh' ? "點擊地圖點亮蓮花，您的善念將與全球同步顯示。" : "Click on the map to light a lotus; your good deeds will be shown globally.";
+            document.getElementById('text-sub').innerText = currentLang === 'zh' ? "點擊地圖點亮蓮花，您的善念將與全球同步顯示。" : "Click to light a lotus; your goodness will be shown globally.";
             document.getElementById('label-count').innerText = currentLang === 'zh' ? "全球已匯聚：" : "Global Gathering: ";
             document.getElementById('label-unit').innerText = currentLang === 'zh' ? " 盞心燈" : " Lamps";
         }
     </script>
 </body>
 </html>
-
