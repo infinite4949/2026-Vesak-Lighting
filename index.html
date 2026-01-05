@@ -246,8 +246,12 @@
             <path d="M50 90 Q85 85 95 60 Q75 40 50 55 Q25 40 5 60 Q15 85 50 90" fill="#ffcc00" opacity="0.8"/>
             <path d="M50 90 Q70 80 75 45 Q50 30 50 10 Q50 30 25 45 Q30 80 50 90" fill="#ffd700"/></svg>`;
 
-        try {
-            const map = L.map('map', { attributionControl: false }).setView([20, 15], 2);
+        
+       let map; // 1. 先在最外面宣告變數
+
+try {
+    // 2. 把 const 拿掉，直接對變數進行初始化
+    map = L.map('map', { attributionControl: false }).setView([20, 15], 2);
             // 將底圖更換為 Voyager (明亮且優雅的灰藍調)
             L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
                 attribution: '© OpenStreetMap | 衛塞節點燈'
@@ -303,9 +307,32 @@
         map.on('locationerror', function(e) {
             alert("無法取得位置，請確認是否開啟瀏覽器定位權限。");
         });
+   // --- 定位功能程式碼 ---
+function locateUser() {
+    if (!map) return; // 如果地圖還沒跑出來就不執行
+    // 請求瀏覽器定位授權
+    map.locate({setView: true, maxZoom: 10});
+}
+
+// 當「成功」抓到位置時
+map.on('locationfound', function(e) {
+    // 在你的位置畫一個金色發光圈
+    L.circle(e.latlng, {
+        radius: 800, 
+        color: '#ffd700', 
+        fillColor: '#ffd700', 
+        fillOpacity: 0.4
+    }).addTo(map);
+});
+
+// 當「失敗」時（通常是使用者按了拒絕）
+map.on('locationerror', function(e) {
+    alert("定位失敗：請檢查手機的 GPS 是否開啟，並在瀏覽器設定中「允許」此網頁存取位置。");
+});
     </script>
 </body>
 </html>
+
 
 
 
