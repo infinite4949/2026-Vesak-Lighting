@@ -290,48 +290,40 @@ try {
             document.getElementById('label-count').innerText = currentLang === 'zh' ? "全球已匯聚：" : "Global Gathering: ";
             document.getElementById('label-unit').innerText = currentLang === 'zh' ? " 盞心燈" : " Lamps";
         }
-   // 4. 定位功能邏輯
+   // --- 最終優化版定位功能 ---
         function locateUser() {
-            // 嘗試取得使用者位置並跳轉地圖，縮放等級設為 10
-            map.locate({setView: true, maxZoom: 10});
+            if (!map) return;
+            // 加入 enableHighAccuracy: true，這能強制手機啟動 GPS 而非僅用基地台
+            map.locate({
+                setView: true, 
+                maxZoom: 12, 
+                enableHighAccuracy: true 
+            });
         }
 
-        // 當成功取得位置時觸發
+        // 成功定位時的動作 (只寫一次)
         map.on('locationfound', function(e) {
-            // 在使用者位置畫一個金色的圓圈標記
-            L.circle(e.latlng, {radius: 500, color: '#d4af37', fillOpacity: 0.3}).addTo(map);
-            console.log("定位成功:", e.latlng);
+            // 清除舊的定位圈（選擇性），並畫出新的發光圈
+            L.circle(e.latlng, {
+                radius: 600,
+                color: '#ffd700',
+                fillColor: '#ffd700',
+                fillOpacity: 0.4,
+                weight: 2
+            }).addTo(map);
+            
+            // 提示使用者已到達其位置
+            console.log("定位成功，座標：" + e.latlng);
         });
 
-        // 當定位失敗（如使用者拒絕）時觸發
+        // 定位失敗時的處理
         map.on('locationerror', function(e) {
-            alert("無法取得位置，請確認是否開啟瀏覽器定位權限。");
+            alert("定位失敗：請確保手機 GPS 已開啟，並在瀏覽器頂部點擊「鎖頭」圖示允許位置權限。");
         });
-   // --- 定位功能程式碼 ---
-function locateUser() {
-    if (!map) return; // 如果地圖還沒跑出來就不執行
-    // 請求瀏覽器定位授權
-    map.locate({setView: true, maxZoom: 10});
-}
-
-// 當「成功」抓到位置時
-map.on('locationfound', function(e) {
-    // 在你的位置畫一個金色發光圈
-    L.circle(e.latlng, {
-        radius: 800, 
-        color: '#ffd700', 
-        fillColor: '#ffd700', 
-        fillOpacity: 0.4
-    }).addTo(map);
-});
-
-// 當「失敗」時（通常是使用者按了拒絕）
-map.on('locationerror', function(e) {
-    alert("定位失敗：請檢查手機的 GPS 是否開啟，並在瀏覽器設定中「允許」此網頁存取位置。");
-});
     </script>
 </body>
 </html>
+
 
 
 
