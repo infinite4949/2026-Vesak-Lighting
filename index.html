@@ -97,29 +97,35 @@
             .locate-btn { width: 44px; height: 44px; bottom: 20px; right: 15px; font-size: 20px; }
         }
    /* 讓彈出視窗的關閉按鈕變大且變金色 */
-        .leaflet-container a.leaflet-popup-close-button {
-            color: #d4af37 !important; /* 金色 */
-            font-size: 24px;           /* 字體放大 */
-            padding: 8px !important;   /* 增加點擊範圍 */
+        /* 1. 放大菜根譚文字框，避免 X 擋住字 */
+        .leaflet-popup-content {
+            width: 260px !important;    /* 增加寬度讓字有空間 */
+            margin: 15px 20px !important; /* 增加邊距讓內容與 X 保持距離 */
+            font-size: 15px;
+            line-height: 1.6;
         }
-        .leaflet-container a.leaflet-popup-close-button:hover {
-            color: #b71c1c !important; /* 滑鼠移上去變深紅色 */
-        }
-       /* 精簡版 X 鍵：縮小外框並移至角落，不擋住佛語 */
+
+        /* 2. 把 X 圓圈按鈕做得更精緻小巧 */
         .leaflet-container a.leaflet-popup-close-button {
-            top: 5px !important;      /* 調整上下位置 */
-            right: 5px !important;    /* 調整左右位置 */
-            width: 24px !important;   /* 縮小圓框寬度 */
-            height: 24px !important;  /* 縮小圓框高度 */
-            line-height: 22px !important; /* 讓 X 居中 */
-            font-size: 16px !important;   /* 縮小 X 字體 */
+            top: 6px !important;       /* 微調上下位置 */
+            right: 6px !important;     /* 微調左右位置 */
+            width: 20px !important;    /* 縮小圓圈外框 */
+            height: 20px !important;   /* 縮小圓圈外框 */
+            line-height: 18px !important; /* 讓 X 準確置中 */
+            font-size: 12px !important;   /* 縮小 X 符號 */
             background-color: #ffffff !important; 
             color: #d4af37 !important;
-            border: 1.5px solid #d4af37 !important; /* 邊框變細 */
+            border: 1px solid #d4af37 !important; /* 邊框變細 */
             border-radius: 50% !important;
             box-shadow: 0 1px 4px rgba(0,0,0,0.1) !important;
             z-index: 1001;
             transition: 0.2s;
+        }
+
+        /* 滑鼠移上去變色 */
+        .leaflet-container a.leaflet-popup-close-button:hover {
+            background-color: #d4af37 !important;
+            color: #ffffff !important;
         }
 
         /* 滑鼠移上去變色 */
@@ -361,6 +367,7 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r
     </script>
 </body>
 </html>
+
 
 
 
