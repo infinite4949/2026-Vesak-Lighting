@@ -6,26 +6,51 @@
     <title>2026 Vesak Global Lighting | 衛塞節全球點燈</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        :root { --gold: #ffd700; --deep-blue: #05162a; }
-        body { margin: 0; background: var(--deep-blue); color: white; font-family: "Microsoft JhengHei", sans-serif; display: flex; flex-direction: column; align-items: center; }
-        .brand-header { position: absolute; top: 20px; left: 20px; font-size: 14px; color: var(--gold); font-weight: bold; z-index: 1000; text-align: left; }
+        :root { --gold: #d4af37; --deep-red: #b71c1c; }
+        body { 
+            margin: 0; 
+            background: #f8f9fa; /* 改為淺灰色背景，配合明亮地圖 */
+            color: #333; 
+            font-family: "Microsoft JhengHei", sans-serif; 
+            display: flex; flex-direction: column; align-items: center; 
+        }
+        
+        /* 頂部導覽優化 */
+        .brand-header { position: absolute; top: 20px; left: 20px; font-size: 14px; color: var(--deep-red); font-weight: bold; z-index: 1000; text-align: left; }
         .lang-switch { position: absolute; top: 20px; right: 20px; z-index: 1000; }
-        .lang-switch button { background: transparent; border: 1px solid var(--gold); color: var(--gold); padding: 5px 12px; border-radius: 20px; cursor: pointer; }
-        .header-section { text-align: center; margin-top: 30px; }
-        .buddha-img { width: 220px; filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.4)); margin-bottom: 15px; }
-        .slogan-main { font-size: 24px; font-weight: bold; margin-bottom: 8px; }
-        .slogan-sub { color: #8892b0; font-size: 14px; margin-bottom: 25px; }
+        .lang-switch button { background: white; border: 1.5px solid var(--gold); color: var(--gold); padding: 5px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .lang-switch button:hover { background: var(--gold); color: white; }
+
+        /* 面板優化：磨砂玻璃效果 */
+        .header-section { 
+            text-align: center; margin-top: 30px; 
+            background: rgba(255, 255, 255, 0.8); 
+            padding: 20px; border-radius: 20px; 
+            backdrop-filter: blur(10px); 
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.3);
+            margin-bottom: 20px;
+        }
+        .buddha-img { width: 180px; filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.4)); margin-bottom: 15px; }
+        .slogan-main { font-size: 24px; font-weight: bold; color: var(--deep-red); margin-bottom: 8px; }
+        .slogan-sub { color: #666; font-size: 14px; margin-bottom: 15px; }
+        
         .counter-box { 
-    display: inline-block; /* 加上這行 */
-    border: 1px solid var(--gold); 
-    padding: 10px 20px; /* 縮小一點左右間距 */
-    border-radius: 50px; 
-    font-size: 18px; 
-    color: var(--gold); 
-    background: rgba(0,0,0,0.3); 
-    margin-bottom: 25px; 
-}
-        #map { width: 85%; max-width: 900px; height: 420px; border-radius: 15px; border: 1px solid #1e2d3d; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+            display: inline-block; 
+            border: 2px solid var(--gold); 
+            padding: 8px 25px; 
+            border-radius: 50px; 
+            font-size: 18px; 
+            color: var(--deep-red); 
+            background: white; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        #map { 
+            width: 85%; max-width: 900px; height: 420px; 
+            border-radius: 20px; border: 2px solid white; 
+            box-shadow: 0 15px 45px rgba(0,0,0,0.1); 
+        }
         
         /* 蓮花燈 SVG 呼吸效果 */
         .lotus-marker { width: 45px; height: 45px; z-index: 9999 !important; animation: lotusBreathe 3s infinite ease-in-out; }
@@ -57,6 +82,20 @@
     /* 地圖高度在手機上縮短，方便滑動頁面 */
     #map { width: 95%; height: 320px; }
 }
+   /* 定位按鈕樣式 */
+        .locate-btn {
+            position: absolute; bottom: 30px; right: 30px; z-index: 1000;
+            background: white; border: none; width: 50px; height: 50px;
+            border-radius: 50%; cursor: pointer; font-size: 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15); display: flex;
+            align-items: center; justify-content: center; transition: 0.3s;
+        }
+        .locate-btn:hover { transform: scale(1.1); }
+
+        /* 手機版 RWD 進階優化：確保定位按鈕不會擋住地圖 */
+        @media (max-width: 768px) {
+            .locate-btn { width: 44px; height: 44px; bottom: 20px; right: 15px; font-size: 20px; }
+        }
     </style>
 </head>
 <body>
@@ -76,6 +115,7 @@
     </div>
 
     <div id="map"></div>
+    <button class="locate-btn" onclick="locateUser()" title="我的位置">📍</button>
 
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -208,8 +248,10 @@
 
         try {
             const map = L.map('map', { attributionControl: false }).setView([20, 15], 2);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
-
+            // 將底圖更換為 Voyager (明亮且優雅的灰藍調)
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                attribution: '© OpenStreetMap | 衛塞節點燈'
+            }).addTo(map);
             const createLotusIcon = () => L.divIcon({
                 html: `<div class="lotus-marker">${lotusSVG}</div>`,
                 className: 'custom-div-icon', iconSize: [45, 45], iconAnchor: [22, 40]
@@ -244,8 +286,26 @@
             document.getElementById('label-count').innerText = currentLang === 'zh' ? "全球已匯聚：" : "Global Gathering: ";
             document.getElementById('label-unit').innerText = currentLang === 'zh' ? " 盞心燈" : " Lamps";
         }
+   // 4. 定位功能邏輯
+        function locateUser() {
+            // 嘗試取得使用者位置並跳轉地圖，縮放等級設為 10
+            map.locate({setView: true, maxZoom: 10});
+        }
+
+        // 當成功取得位置時觸發
+        map.on('locationfound', function(e) {
+            // 在使用者位置畫一個金色的圓圈標記
+            L.circle(e.latlng, {radius: 500, color: '#d4af37', fillOpacity: 0.3}).addTo(map);
+            console.log("定位成功:", e.latlng);
+        });
+
+        // 當定位失敗（如使用者拒絕）時觸發
+        map.on('locationerror', function(e) {
+            alert("無法取得位置，請確認是否開啟瀏覽器定位權限。");
+        });
     </script>
 </body>
 </html>
+
 
 
