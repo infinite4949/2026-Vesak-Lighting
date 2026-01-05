@@ -96,6 +96,15 @@
         @media (max-width: 768px) {
             .locate-btn { width: 44px; height: 44px; bottom: 20px; right: 15px; font-size: 20px; }
         }
+   /* 讓彈出視窗的關閉按鈕變大且變金色 */
+        .leaflet-container a.leaflet-popup-close-button {
+            color: #d4af37 !important; /* 金色 */
+            font-size: 24px;           /* 字體放大 */
+            padding: 8px !important;   /* 增加點擊範圍 */
+        }
+        .leaflet-container a.leaflet-popup-close-button:hover {
+            color: #b71c1c !important; /* 滑鼠移上去變深紅色 */
+        }
     </style>
 </head>
 <body>
@@ -272,7 +281,7 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r
             map.on('click', function(e) {
                 const q = quotes[Math.floor(Math.random() * quotes.length)];
                 db.ref('lamps').push({ lat: e.latlng.lat, lng: e.latlng.lng, quoteZh: q.zh, quoteEn: q.en });
-                L.popup({ closeButton: false, offset: [0, -20] })
+                L.popup({ closeButton: true, offset: [0, -20] })
                     .setLatLng(e.latlng)
                     .setContent(`<div class="quote-zh">${q.zh}</div><div class="quote-en">${q.en}</div>`)
                     .openOn(map);
@@ -281,7 +290,7 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r
             db.ref('lamps').on('child_added', (snapshot) => {
                 const data = snapshot.val();
                 const marker = L.marker([data.lat, data.lng], { icon: createLotusIcon() }).addTo(map);
-                marker.bindPopup(`<div class="quote-zh">${data.quoteZh}</div><div class="quote-en">${data.quoteEn}</div>`, { closeButton: false });
+                marker.bindPopup(`<div class="quote-zh">${data.quoteZh}</div><div class="quote-en">${data.quoteEn}</div>`, { closeButton: true });
             });
 
             db.ref('lamps').on('value', (snapshot) => {
@@ -330,6 +339,7 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r
     </script>
 </body>
 </html>
+
 
 
 
