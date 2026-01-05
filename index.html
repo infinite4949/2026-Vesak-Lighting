@@ -250,12 +250,19 @@
        let map; // 1. 先在最外面宣告變數
 
 try {
-    // 2. 把 const 拿掉，直接對變數進行初始化
-    map = L.map('map', { attributionControl: false }).setView([20, 15], 2);
-            // 將底圖更換為 Voyager (明亮且優雅的灰藍調)
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-                attribution: '© OpenStreetMap | 衛塞節點燈'
-            }).addTo(map);
+   // 修改這裡：加入 minZoom, maxBounds 與 worldCopyJump
+map = L.map('map', { 
+    attributionControl: false,
+    minZoom: 2,           // 限制最小縮放，避免看到太多重複的地圖
+    worldCopyJump: true   // 當你滑動超過 180 度時，它會自動跳轉回主地圖
+}).setView([20, 15], 2);
+
+// 同時在 TileLayer 加入 noWrap: true
+L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    attribution: '© OpenStreetMap | 衛塞節點燈',
+    noWrap: true,      // 關鍵！禁止底圖左右重複出現
+    bounds: [[-90, -180], [90, 180]] // 限制地圖範圍
+}).addTo(map);
             const createLotusIcon = () => L.divIcon({
                 html: `<div class="lotus-marker">${lotusSVG}</div>`,
                 className: 'custom-div-icon', iconSize: [45, 45], iconAnchor: [22, 40]
@@ -323,6 +330,7 @@ try {
     </script>
 </body>
 </html>
+
 
 
 
