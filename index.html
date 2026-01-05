@@ -105,28 +105,27 @@
         .leaflet-container a.leaflet-popup-close-button:hover {
             color: #b71c1c !important; /* 滑鼠移上去變深紅色 */
         }
-        /* 讓 X 鍵變為圓形按鈕，並移到角落避免擋字 */
+       /* 精簡版 X 鍵：縮小外框並移至角落，不擋住佛語 */
         .leaflet-container a.leaflet-popup-close-button {
-            top: -10px !important;    /* 往上移出內容區 */
-            right: -10px !important;  /* 往右移出內容區 */
-            background-color: #ffffff !important; /* 白色底色 */
-            color: #d4af37 !important;           /* 金色 X */
-            border: 2px solid #d4af37 !important; /* 金色圓圈邊框 */
-            border-radius: 50% !important;        /* 變成正圓形 */
-            width: 30px !important;               /* 設定寬度 */
-            height: 30px !important;              /* 設定高度 */
-            line-height: 26px !important;         /* 讓 X 垂直居中 */
-            font-size: 20px !important;           /* X 的大小 */
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important; /* 增加立體陰影 */
+            top: 5px !important;      /* 調整上下位置 */
+            right: 5px !important;    /* 調整左右位置 */
+            width: 24px !important;   /* 縮小圓框寬度 */
+            height: 24px !important;  /* 縮小圓框高度 */
+            line-height: 22px !important; /* 讓 X 居中 */
+            font-size: 16px !important;   /* 縮小 X 字體 */
+            background-color: #ffffff !important; 
+            color: #d4af37 !important;
+            border: 1.5px solid #d4af37 !important; /* 邊框變細 */
+            border-radius: 50% !important;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1) !important;
             z-index: 1001;
-            transition: 0.3s;
+            transition: 0.2s;
         }
 
-        /* 滑鼠移上去時的效果 */
+        /* 滑鼠移上去變色 */
         .leaflet-container a.leaflet-popup-close-button:hover {
-            background-color: #d4af37 !important; /* 變成金色底 */
-            color: #ffffff !important;           /* 變成白色 X */
-            transform: scale(1.1);               /* 稍微放大 */
+            background-color: #d4af37 !important;
+            color: #ffffff !important;
         }
     </style>
 </head>
@@ -362,6 +361,7 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r
     </script>
 </body>
 </html>
+
 
 
 
